@@ -1,4 +1,7 @@
 // api/submit-survey.js
+const { GoogleSpreadsheet } = require('google-spreadsheet');
+const { JWT } = require('google-auth-library');
+
 export default async function handler(req, res) {
   // Set CORS headers
   res.setHeader('Access-Control-Allow-Origin', '*');
@@ -19,15 +22,6 @@ export default async function handler(req, res) {
   try {
     const data = req.body;
     
-    // Add server-side timestamp and metadata
-    const surveyResponse = {
-      id: Date.now().toString(),
-      timestamp: new Date().toISOString(),
-      ip: req.headers['x-forwarded-for'] || req.headers['x-real-ip'] || 'unknown',
-      userAgent: req.headers['user-agent'] || 'unknown',
-      ...data
-    };
-
     // Basic validation
     if (!data.ime || !data.starost) {
       return res.status(400).json({ 
@@ -35,57 +29,89 @@ export default async function handler(req, res) {
       });
     }
 
-    // Log the response (in production, save to database)
-    console.log('Survey response received:', surveyResponse);
-    
-    // Here you can integrate with various services:
-    
-    // Option 1: Google Sheets
-    /*
-    const { GoogleSpreadsheet } = require('google-spreadsheet');
-    const doc = new GoogleSpreadsheet(process.env.GOOGLE_SHEET_ID);
-    await doc.useServiceAccountAuth({
-      client_email: process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL,
-      private_key: process.env.GOOGLE_PRIVATE_KEY.replace(/\\n/g, '\n'),
+    // Prepare data for Google Sheets
+    const surveyResponse = {
+      Časovni_žig: new Date().toLocaleString('sl-SI', { timeZone: 'Europe/Ljubljana' }),
+      ID: Date.now().toString(),
+      Ime: data.ime || '',
+      Starost: data.starost || '',
+      Datum: data.datum || '',
+      Spol: data.spol || '',
+      VR_izkušnje: data.vr_izkusnje || '',
+      VR_opis: data.vr_opis || '',
+      
+      // Implementacija pogovora (1-5)
+      Q1_Pogovor_organičen: data.q1_pogovor_organicen || '',
+      Q2_Skulptura_razumela: data.q2_skulptura_razumela || '',
+      Q3_Odgovori_smiselni: data.q3_odgovori_smiselni || '',
+      Q4_Hitro_reagiral: data.q4_hitro_reagiral || '',
+      
+      // Animacije (1-5)
+      Q5_Animacije_naravno: data.q5_animacije_naravno || '',
+      Q6_Animacije_pripomogle: data.q6_animacije_pripomogle || '',
+      Q7_Telesne_animacije: data.q7_telesne_animacije || '',
+      Q8_Lip_sync_pripomogle: data.q8_lip_sync_pripomogle || '',
+      Q9_Lip_sync_naraven: data.q9_lip_sync_naraven || '',
+      
+      // Uporabniška izkušnja (1-5)
+      Q10_Lip_sync_ustnic: data.q10_lip_sync_ustnic || '',
+      Q11_Animacije_telesa: data.q11_animacije_telesa || '',
+      Q12_Spomin_skulpture: data.q12_spomin_skulpture || '',
+      Q13_Mašilni_avdio: data.q13_masilni_avdio || '',
+      Q14_Efekt_mreže: data.q14_efekt_mreze || '',
+      Q15_Interaktivni_elementi: data.q15_interaktivni_elementi || '',
+      Q16_Uporabniški_vmesnik: data.q16_uporabniski_vmesnik || '',
+      
+      // Odprta vprašanja
+      Odprto1_Razstava: data.odprto1_razstava || '',
+      Odprto2_Aspekti_pritegnili: data.odprto2_aspekti_pritegnili || '',
+      Odprto3_Manjkajo_aspekti: data.odprto3_manjkajo_aspekti || '',
+      Odprto4_Predlogi: data.odprto4_predlogi || '',
+      
+      // Metadata
+      IP: req.headers['x-forwarded-for'] || req.headers['x-real-ip'] || 'unknown',
+      User_Agent: req.headers['user-agent'] || 'unknown'
+    };
+
+    // Google Sheets setup
+    if (!process.env.GOOGLE_SHEET_ID || !process.env.GOOGLE_PRIVATE_KEY || !process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL) {
+      console.error('Missing Google Sheets environment variables');
+      return res.status(500).json({ 
+        error: 'Server configuration error - missing Google Sheets credentials' 
+      });
+    }
+
+    // Initialize Google Sheets
+    const serviceAccountAuth = new JWT({
+      email: process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL,
+      key: process.env.GOOGLE_PRIVATE_KEY.replace(/\\n/g, '\n'),
+      scopes: ['https://www.googleapis.com/auth/spreadsheets'],
     });
+
+    const doc = new GoogleSpreadsheet(process.env.GOOGLE_SHEET_ID, serviceAccountAuth);
+    
+    // Load document info
     await doc.loadInfo();
+    console.log('Connected to Google Sheet:', doc.title);
+    
+    // Get the first sheet
     const sheet = doc.sheetsByIndex[0];
+    
+    // Check if headers exist, if not create them
+    const headers = await sheet.getHeaderRow();
+    if (headers.length === 0) {
+      await sheet.setHeaderRow(Object.keys(surveyResponse));
+    }
+    
+    // Add the survey response as a new row
     await sheet.addRow(surveyResponse);
-    */
+    
+    console.log('Survey response saved to Google Sheets:', surveyResponse.ID);
 
-    // Option 2: Airtable
-    /*
-    const Airtable = require('airtable');
-    const base = new Airtable({apiKey: process.env.AIRTABLE_API_KEY}).base(process.env.AIRTABLE_BASE_ID);
-    await base('Survey Responses').create([
-      {
-        fields: surveyResponse
-      }
-    ]);
-    */
-
-    // Option 3: MongoDB Atlas
-    /*
-    const { MongoClient } = require('mongodb');
-    const client = new MongoClient(process.env.MONGODB_URI);
-    await client.connect();
-    const db = client.db('vr-survey');
-    const collection = db.collection('responses');
-    await collection.insertOne(surveyResponse);
-    await client.close();
-    */
-
-    // Option 4: Vercel KV (Redis)
-    /*
-    const { kv } = require('@vercel/kv');
-    await kv.set(`survey:${surveyResponse.id}`, JSON.stringify(surveyResponse));
-    */
-
-    // For now, just return success
     res.status(200).json({ 
       success: true, 
-      message: 'Anketa je bila uspešno oddana!',
-      id: surveyResponse.id
+      message: 'Anketa je bila uspešno oddana in shranjena!',
+      id: surveyResponse.ID
     });
 
   } catch (error) {
