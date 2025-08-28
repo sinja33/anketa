@@ -16,9 +16,9 @@
     "vercel": "^32.0.0"
   },
   "engines": {
-    "node": "18.x"
+    "node": "22.x"
   },
   "keywords": ["survey", "vr", "vercel"],
-  "author": "Your Name",
+  "author": "Sinja Kocica",
   "license": "MIT"
 }
