@@ -1,0 +1,22 @@
+{
+  "name": "vr-survey",
+  "version": "1.0.0",
+  "description": "VR Experience Survey Form",
+  "main": "index.html",
+  "scripts": {
+    "dev": "vercel dev",
+    "build": "echo 'Static site - no build needed'",
+    "deploy": "vercel --prod"
+  },
+  "dependencies": {
+    "google-spreadsheet": "^4.1.2",
+    "airtable": "^0.12.2",
+    "mongodb": "^6.3.0"
+  },
+  "devDependencies": {
+    "vercel": "^32.0.0"
+  },
+  "keywords": ["survey", "vr", "vercel"],
+  "author": "Your Name",
+  "license": "MIT"
+}

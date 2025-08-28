@@ -1,0 +1,644 @@
+<!DOCTYPE html>
+<html lang="sl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VR Survey Form</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Dancing+Script:wght@400;500;600;700&family=Inter:wght@300;400;500;600&display=swap');
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Inter', Arial, sans-serif;
+            background: #f8f9fa;
+            padding: 20mm;
+            line-height: 1.6;
+            color: #333;
+        }
+        
+        .survey-container {
+            max-width: 210mm;
+            margin: 0 auto;
+            background: white;
+            padding: 30mm 25mm;
+            box-shadow: 0 0 20px rgba(0,0,0,0.1);
+            border-radius: 3mm;
+        }
+        
+        .title {
+            font-family: 'Dancing Script', cursive;
+            font-size: 48pt;
+            font-weight: 600;
+            text-align: center;
+            color: #333;
+            margin-bottom: 20mm;
+            letter-spacing: 2px;
+        }
+        
+        .personal-info {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15mm;
+            margin-bottom: 25mm;
+        }
+        
+        .info-field {
+            display: flex;
+            align-items: center;
+            font-size: 12pt;
+            color: #555;
+        }
+        
+        .info-label {
+            margin-right: 8mm;
+            font-weight: 400;
+        }
+        
+        .info-line {
+            border-bottom: 1px solid #333;
+            flex: 1;
+            height: 6mm;
+            min-width: 30mm;
+            background: transparent;
+            border: none;
+            border-bottom: 1px solid #333;
+            outline: none;
+            font-family: inherit;
+            font-size: 11pt;
+            padding: 1mm 2mm;
+        }
+        
+        .info-line:focus {
+            border-bottom: 2px solid #666;
+        }
+        
+        .rating-header {
+            display: flex;
+            justify-content: flex-end;
+            margin-bottom: 8mm;
+            gap: 15mm;
+            padding-right: 5mm;
+        }
+        
+        .rating-label {
+            font-size: 10pt;
+            color: #666;
+            font-weight: 500;
+        }
+        
+        .question-row {
+            display: flex;
+            align-items: center;
+            margin-bottom: 8mm;
+            padding: 3mm 0;
+        }
+        
+        .question-text {
+            flex: 1;
+            font-size: 11pt;
+            color: #333;
+            padding-right: 10mm;
+            line-height: 1.4;
+        }
+        
+        .rating-options {
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            width: 50mm;
+        }
+        
+        .rating-input {
+            width: 8mm;
+            height: 8mm;
+            border: 2px solid #333;
+            border-radius: 2mm;
+            text-align: center;
+            font-size: 10pt;
+            font-weight: 500;
+            outline: none;
+            background: white;
+            font-family: inherit;
+        }
+        
+        .rating-input:focus {
+            border-color: #666;
+            background: #f9f9f9;
+        }
+        
+        .section-title {
+            font-size: 13pt;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 10mm;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        .open-question {
+            margin-bottom: 15mm;
+        }
+        
+        .open-question-text {
+            font-size: 11pt;
+            color: #333;
+            margin-bottom: 4mm;
+            font-weight: 500;
+        }
+        
+        .answer-box {
+            border: 1px solid #ddd;
+            height: 20mm;
+            border-radius: 2mm;
+            background: #fafafa;
+            width: 100%;
+            resize: none;
+            outline: none;
+            font-family: inherit;
+            font-size: 10pt;
+            padding: 3mm;
+            line-height: 1.4;
+        }
+        
+        .answer-box:focus {
+            border-color: #666;
+            background: white;
+        }
+        
+        .experience-check {
+            display: flex;
+            align-items: center;
+            gap: 8mm;
+            margin-top: 3mm;
+        }
+        
+        .checkbox {
+            width: 5mm;
+            height: 5mm;
+            border: 1.5px solid #333;
+            margin-right: 2mm;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        
+        .checkbox:hover {
+            background: #f0f0f0;
+        }
+        
+        .checkbox.checked {
+            background: #333;
+            position: relative;
+        }
+        
+        .checkbox.checked::after {
+            content: '✓';
+            color: white;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 3mm;
+            font-weight: bold;
+        }
+        
+        .checkbox-label {
+            font-size: 10pt;
+            color: #555;
+        }
+        
+        .vr-description {
+            width: 100%;
+            min-height: 15mm;
+            border: 1px solid #ddd;
+            border-radius: 2mm;
+            background: #fafafa;
+            resize: vertical;
+            outline: none;
+            font-family: inherit;
+            font-size: 10pt;
+            padding: 3mm;
+            line-height: 1.4;
+            margin-top: 3mm;
+        }
+        
+        .vr-description:focus {
+            border-color: #666;
+            background: white;
+        }
+        
+        .submit-section {
+            text-align: center;
+            margin-top: 30mm;
+            padding: 20mm 0;
+            border-top: 1px solid #eee;
+        }
+        
+        .submit-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 4mm 12mm;
+            font-size: 12pt;
+            font-weight: 600;
+            border-radius: 6mm;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-family: inherit;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+        }
+        
+        .submit-btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.6);
+        }
+        
+        .submit-btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+        
+        .success-message {
+            display: none;
+            background: #d4edda;
+            border: 1px solid #c3e6cb;
+            color: #155724;
+            padding: 4mm;
+            border-radius: 3mm;
+            margin-top: 5mm;
+            text-align: center;
+        }
+        
+        .error-message {
+            display: none;
+            background: #f8d7da;
+            border: 1px solid #f5c6cb;
+            color: #721c24;
+            padding: 4mm;
+            border-radius: 3mm;
+            margin-top: 5mm;
+            text-align: center;
+        }
+        
+        .footer {
+            text-align: center;
+            margin-top: 25mm;
+            font-size: 10pt;
+            color: #666;
+            font-style: italic;
+        }
+        
+        @media print {
+            body {
+                background: white;
+                padding: 10mm;
+            }
+            
+            .survey-container {
+                box-shadow: none;
+                border-radius: 0;
+                padding: 15mm;
+            }
+            
+            .submit-section {
+                display: none;
+            }
+        }
+        
+        @page {
+            margin: 10mm;
+            size: A4;
+        }
+    </style>
+</head>
+<body>
+    <div class="survey-container">
+        <form id="surveyForm">
+            <h1 class="title">Survey Form</h1>
+            
+            <!-- Personal Information -->
+            <div class="personal-info">
+                <div class="info-field">
+                    <span class="info-label">Ime:</span>
+                    <input type="text" name="ime" class="info-line" />
+                </div>
+                <div class="info-field">
+                    <span class="info-label">Starost:</span>
+                    <input type="text" name="starost" class="info-line" />
+                </div>
+                <div class="info-field">
+                    <span class="info-label">Datum:</span>
+                    <input type="text" name="datum" class="info-line" />
+                </div>
+                <div class="info-field">
+                    <span class="info-label">Spol:</span>
+                    <input type="text" name="spol" class="info-line" />
+                </div>
+            </div>
+            
+            <!-- VR Experience -->
+            <div style="margin-bottom: 20mm;">
+                <div style="font-size: 11pt; color: #333; margin-bottom: 3mm; font-weight: 500;">Ali že imate izkušnje z virtualno resničnostjo?</div>
+                <div class="experience-check">
+                    <div style="display: flex; align-items: center;">
+                        <div class="checkbox" data-group="vr-experience" data-value="da"></div>
+                        <span class="checkbox-label">Da</span>
+                    </div>
+                    <div style="display: flex; align-items: center;">
+                        <div class="checkbox" data-group="vr-experience" data-value="ne"></div>
+                        <span class="checkbox-label">Ne</span>
+                    </div>
+                </div>
+                <div style="margin-top: 5mm;">
+                    <div style="font-size: 10pt; color: #666; margin-bottom: 2mm;">Opišite svoje izkušnje z VR (če jih imate):</div>
+                    <textarea name="vr_opis" class="vr-description" placeholder="Prosimo, opišite svoje prejšnje izkušnje z virtualno resničnostjo..."></textarea>
+                </div>
+                <input type="hidden" name="vr_izkusnje" value="">
+            </div>
+            
+            <!-- Rating Scale Header -->
+            <div class="rating-header">
+                <div class="rating-label">Vpišite številko od 1 do 5</div>
+                <div class="rating-label">1 - Se sploh ne strinjam • 5 - Se popolnoma strinjam</div>
+            </div>
+            
+            <!-- Implementation of Conversation Section -->
+            <div class="section-title">Implementacija pogovora</div>
+            
+            <div class="question-row">
+                <div class="question-text">Pogovor je bil organičen.</div>
+                <div class="rating-options">
+                    <input type="number" min="1" max="5" name="q1_pogovor_organicen" class="rating-input" placeholder="1-5">
+                </div>
+            </div>
+            
+            <div class="question-row">
+                <div class="question-text">Skulptura je razumela moja vprašanja.</div>
+                <div class="rating-options">
+                    <input type="number" min="1" max="5" name="q2_skulptura_razumela" class="rating-input" placeholder="1-5">
+                </div>
+            </div>
+            
+            <div class="question-row">
+                <div class="question-text">Odgovori skulpture so bili smiselni.</div>
+                <div class="rating-options">
+                    <input type="number" min="1" max="5" name="q3_odgovori_smiselni" class="rating-input" placeholder="1-5">
+                </div>
+            </div>
+            
+            <div class="question-row">
+                <div class="question-text">Sistem je hitro reagiral na moj govor.</div>
+                <div class="rating-options">
+                    <input type="number" min="1" max="5" name="q4_hitro_reagiral" class="rating-input" placeholder="1-5">
+                </div>
+            </div>
+            
+            <!-- Animations Section -->
+            <div class="section-title" style="margin-top: 15mm;">Animacije</div>
+            
+            <div class="question-row">
+                <div class="question-text">Animacije so izgledale naravno.</div>
+                <div class="rating-options">
+                    <input type="number" min="1" max="5" name="q5_animacije_naravno" class="rating-input" placeholder="1-5">
+                </div>
+            </div>
+            
+            <div class="question-row">
+                <div class="question-text">Animacije so pripomogle k izkušnji.</div>
+                <div class="rating-options">
+                    <input type="number" min="1" max="5" name="q6_animacije_pripomogle" class="rating-input" placeholder="1-5">
+                </div>
+            </div>
+            
+            <div class="question-row">
+                <div class="question-text">Telesne animacije so pogovor naredile bolj naraven.</div>
+                <div class="rating-options">
+                    <input type="number" min="1" max="5" name="q7_telesne_animacije" class="rating-input" placeholder="1-5">
+                </div>
+            </div>
+            
+            <div class="question-row">
+                <div class="question-text">Lip sync je pripomogla k izkušnji.</div>
+                <div class="rating-options">
+                    <input type="number" min="1" max="5" name="q8_lip_sync_pripomogle" class="rating-input" placeholder="1-5">
+                </div>
+            </div>
+            
+            <div class="question-row">
+                <div class="question-text">Lip sync je pogovor naredila bolj naraven.</div>
+                <div class="rating-options">
+                    <input type="number" min="1" max="5" name="q9_lip_sync_naraven" class="rating-input" placeholder="1-5">
+                </div>
+            </div>
+            
+            <!-- User Experience Section -->
+            <div style="margin-top: 15mm;">
+                <div class="rating-header">
+                    <div class="rating-label">Vpišite številko od 1 do 5</div>
+                    <div class="rating-label">1 - Sploh ne pripomore • 5 - Zelo pripomore</div>
+                </div>
+                
+                <div class="section-title">Uporabniška izkušnja</div>
+                
+                <div class="question-row">
+                    <div class="question-text">Lip sync ustnic</div>
+                    <div class="rating-options">
+                        <input type="number" min="1" max="5" name="q10_lip_sync_ustnic" class="rating-input" placeholder="1-5">
+                    </div>
+                </div>
+                
+                <div class="question-row">
+                    <div class="question-text">Animacije telesa</div>
+                    <div class="rating-options">
+                        <input type="number" min="1" max="5" name="q11_animacije_telesa" class="rating-input" placeholder="1-5">
+                    </div>
+                </div>
+                
+                <div class="question-row">
+                    <div class="question-text">Spomin skulpture (zmožnost, da si vas zapomne)</div>
+                    <div class="rating-options">
+                        <input type="number" min="1" max="5" name="q12_spomin_skulpture" class="rating-input" placeholder="1-5">
+                    </div>
+                </div>
+
+                <div class="question-row">
+                    <div class="question-text">Mašilni avdio posnetki</div>
+                    <div class="rating-options">
+                        <input type="number" min="1" max="5" name="q13_masilni_avdio" class="rating-input" placeholder="1-5">
+                    </div>
+                </div>
+                
+                <div class="question-row">
+                    <div class="question-text">Efekt mreže</div>
+                    <div class="rating-options">
+                        <input type="number" min="1" max="5" name="q14_efekt_mreze" class="rating-input" placeholder="1-5">
+                    </div>
+                </div>
+                
+                <div class="question-row">
+                    <div class="question-text">Interaktivni elementi (sejanje semena)</div>
+                    <div class="rating-options">
+                        <input type="number" min="1" max="5" name="q15_interaktivni_elementi" class="rating-input" placeholder="1-5">
+                    </div>
+                </div>
+                
+                <div class="question-row">
+                    <div class="question-text">Uporabniški vmesnik</div>
+                    <div class="rating-options">
+                        <input type="number" min="1" max="5" name="q16_uporabniski_vmesnik" class="rating-input" placeholder="1-5">
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Open Questions -->
+            <div style="margin-top: 20mm;">
+                <div class="section-title">Odprta vprašanja</div>
+                
+                <div class="open-question">
+                    <div class="open-question-text">Bi vas takšna razstava bolj pritegnila kot klasična kiparska razstava?</div>
+                    <textarea name="odprto1_razstava" class="answer-box"></textarea>
+                </div>
+                
+                <div class="open-question">
+                    <div class="open-question-text">Kateri aspekti izkušnje so vas najbolj pritegnili?</div>
+                    <textarea name="odprto2_aspekti_pritegnili" class="answer-box"></textarea>
+                </div>
+                
+                <div class="open-question">
+                    <div class="open-question-text">Kateri aspekti še manjkajo, da bi bila izkušnja še boljša?</div>
+                    <textarea name="odprto3_manjkajo_aspekti" class="answer-box"></textarea>
+                </div>
+                
+                <div class="open-question">
+                    <div class="open-question-text">Imate kakšne predloge za izboljšavo izkušnje?</div>
+                    <textarea name="odprto4_predlogi" class="answer-box"></textarea>
+                </div>
+            </div>
+            
+            <!-- Submit Section -->
+            <div class="submit-section">
+                <button type="submit" id="submitBtn" class="submit-btn">Oddaj anketo</button>
+                <div id="successMessage" class="success-message">
+                    ✅ Anketa je bila uspešno oddana! Hvala za vaše sodelovanje.
+                </div>
+                <div id="errorMessage" class="error-message">
+                    ❌ Prišlo je do napake pri oddaji ankete. Prosimo, poskusite znova.
+                </div>
+            </div>
+            
+            <div class="footer">
+                Hvala za vaš dragocen odziv! Vaše mnenje nam pomaga izboljšati VR izkušnjo.
+            </div>
+        </form>
+    </div>
+    
+    <script>
+        // Interactive checkboxes for VR experience
+        document.querySelectorAll('.checkbox').forEach(checkbox => {
+            checkbox.addEventListener('click', function() {
+                const group = this.dataset.group;
+                
+                if (group) {
+                    // Radio button behavior for grouped checkboxes
+                    document.querySelectorAll(`.checkbox[data-group="${group}"]`).forEach(cb => {
+                        cb.classList.remove('checked');
+                    });
+                    this.classList.add('checked');
+                    
+                    // Update hidden input for VR experience
+                    document.querySelector('input[name="vr_izkusnje"]').value = this.dataset.value;
+                } else {
+                    // Toggle behavior for individual checkboxes
+                    this.classList.toggle('checked');
+                }
+            });
+        });
+        
+        // Validate number inputs (1-5 only)
+        document.querySelectorAll('.rating-input').forEach(input => {
+            input.addEventListener('input', function() {
+                let value = parseInt(this.value);
+                if (value < 1) this.value = 1;
+                if (value > 5) this.value = 5;
+                if (isNaN(value)) this.value = '';
+            });
+        });
+        
+        // Form submission
+        document.getElementById('surveyForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const submitBtn = document.getElementById('submitBtn');
+            const successMessage = document.getElementById('successMessage');
+            const errorMessage = document.getElementById('errorMessage');
+            
+            // Hide previous messages
+            successMessage.style.display = 'none';
+            errorMessage.style.display = 'none';
+            
+            // Disable submit button
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Oddajanje...';
+            
+            // Collect form data
+            const formData = new FormData(this);
+            const data = Object.fromEntries(formData);
+            
+            // Add timestamp
+            data.timestamp = new Date().toISOString();
+            data.ip = 'hidden'; // You can add IP detection if needed
+            
+            try {
+                // Send data to your backend
+                const response = await fetch('/api/submit-survey', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(data)
+                });
+                
+                if (response.ok) {
+                    successMessage.style.display = 'block';
+                    this.reset(); // Clear form
+                    // Reset checkboxes
+                    document.querySelectorAll('.checkbox').forEach(cb => cb.classList.remove('checked'));
+                } else {
+                    throw new Error('Server error');
+                }
+            } catch (error) {
+                console.error('Error submitting survey:', error);
+                errorMessage.style.display = 'block';
+                
+                // Fallback: download as JSON
+                downloadAsJSON(data);
+            } finally {
+                // Re-enable submit button
+                submitBtn.disabled = false;
+                submitBtn.textContent = 'Oddaj anketo';
+            }
+        });
+        
+        // Fallback function to download data as JSON
+        function downloadAsJSON(data) {
+            const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `anketa_${new Date().toISOString().slice(0,19).replace(/:/g, '-')}.json`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+    </script>
+</body>
+</html>
