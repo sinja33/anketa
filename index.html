@@ -541,6 +541,8 @@
     </div>
     
     <script>
+        // Dodajte ta JavaScript na konec vašega index.html (nadomesti obstoječi <script> del)
+
         // Interactive checkboxes for VR experience
         document.querySelectorAll('.checkbox').forEach(checkbox => {
             checkbox.addEventListener('click', function() {
@@ -561,7 +563,7 @@
                 }
             });
         });
-        
+
         // Validate number inputs (1-5 only)
         document.querySelectorAll('.rating-input').forEach(input => {
             input.addEventListener('input', function() {
@@ -571,14 +573,16 @@
                 if (isNaN(value)) this.value = '';
             });
         });
-        
-        // Form submission
+
+        // Form submission with better debugging
         document.getElementById('surveyForm').addEventListener('submit', async function(e) {
             e.preventDefault();
             
             const submitBtn = document.getElementById('submitBtn');
             const successMessage = document.getElementById('successMessage');
             const errorMessage = document.getElementById('errorMessage');
+            
+            console.log('Form submission started...');
             
             // Hide previous messages
             successMessage.style.display = 'none';
@@ -594,10 +598,12 @@
             
             // Add timestamp
             data.timestamp = new Date().toISOString();
-            data.ip = 'hidden'; // You can add IP detection if needed
+            
+            console.log('Form data collected:', data);
             
             try {
-                // Send data to your backend
+                console.log('Sending POST request to /api/submit-survey...');
+                
                 const response = await fetch('/api/submit-survey', {
                     method: 'POST',
                     headers: {
@@ -606,19 +612,42 @@
                     body: JSON.stringify(data)
                 });
                 
-                if (response.ok) {
+                console.log('Response status:', response.status);
+                console.log('Response headers:', response.headers);
+                
+                const result = await response.json();
+                console.log('Response body:', result);
+                
+                if (response.ok && result.success) {
+                    console.log('Success!');
                     successMessage.style.display = 'block';
+                    successMessage.innerHTML = `✅ ${result.message || 'Anketa je bila uspešno oddana!'}`;
                     this.reset(); // Clear form
                     // Reset checkboxes
                     document.querySelectorAll('.checkbox').forEach(cb => cb.classList.remove('checked'));
                 } else {
-                    throw new Error('Server error');
+                    throw new Error(result.error || result.details || `Server error: ${response.status}`);
                 }
             } catch (error) {
                 console.error('Error submitting survey:', error);
                 errorMessage.style.display = 'block';
                 
-                // Fallback: download as JSON
+                let errorText = 'Prišlo je do napake pri oddaji ankete.';
+                
+                if (error.message.includes('Failed to fetch')) {
+                    errorText += ' Preverite internetno povezavo.';
+                } else if (error.message.includes('404')) {
+                    errorText += ' API endpoint ni najden.';
+                } else if (error.message.includes('500')) {
+                    errorText += ' Napaka na strežniku.';
+                } else {
+                    errorText += ` Detajli: ${error.message}`;
+                }
+                
+                errorMessage.innerHTML = `❌ ${errorText}`;
+                
+                // Fallback: download as JSON if server fails
+                console.log('Offering JSON download as fallback...');
                 downloadAsJSON(data);
             } finally {
                 // Re-enable submit button
@@ -626,19 +655,62 @@
                 submitBtn.textContent = 'Oddaj anketo';
             }
         });
-        
+
         // Fallback function to download data as JSON
         function downloadAsJSON(data) {
-            const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = `anketa_${new Date().toISOString().slice(0,19).replace(/:/g, '-')}.json`;
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
-            URL.revokeObjectURL(url);
+            try {
+                const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `anketa_${new Date().toISOString().slice(0,19).replace(/:/g, '-')}.json`;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+                
+                // Show message about fallback
+                const errorMessage = document.getElementById('errorMessage');
+                errorMessage.innerHTML += '<br><br>📁 Podatki so bili shranjeni v JSON datoteko kot rezerva.';
+            } catch (fallbackError) {
+                console.error('Fallback download failed:', fallbackError);
+            }
         }
+
+        // Quick test function (dodajte za debugging)
+        function testAPI() {
+            console.log('Testing API...');
+            
+            fetch('/api/submit-survey', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    ime: 'Test User',
+                    starost: '25',
+                    q1_pogovor_organicen: '5'
+                })
+            })
+            .then(response => {
+                console.log('Test response status:', response.status);
+                return response.json();
+            })
+            .then(data => {
+                console.log('Test response data:', data);
+                alert('API Test Result: ' + JSON.stringify(data, null, 2));
+            })
+            .catch(error => {
+                console.error('Test error:', error);
+                alert('API Test Error: ' + error.message);
+            });
+        }
+
+        // Console helper - za debugging v browser console
+        console.log('VR Survey JavaScript loaded successfully!');
+        console.log('Available debug functions:');
+        console.log('- testAPI() - Test the API endpoint');
+        console.log('- Use F12 Developer Tools to see network requests');
     </script>
 </body>
 </html>
