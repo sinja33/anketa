@@ -15,6 +15,9 @@
   "devDependencies": {
     "vercel": "^32.0.0"
   },
+  "engines": {
+    "node": "18.x"
+  },
   "keywords": ["survey", "vr", "vercel"],
   "author": "Your Name",
   "license": "MIT"

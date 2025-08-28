@@ -1,5 +1,10 @@
 {
   "version": 2,
+  "functions": {
+    "api/submit-survey.js": {
+      "maxDuration": 30
+    }
+  },
   "builds": [
     {
       "src": "*.html",
